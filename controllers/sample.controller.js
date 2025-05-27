@@ -5,9 +5,7 @@ const User = require("../databases/db_nosql/models/user.mongodb.model")
 const createOne = async (req, res) => {
     const errors = validationResult(req)
 
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ success: false, msg: errors.array() })
-    }
+    if (!errors.isEmpty()) return res.status(400).json({ success: false, msg: errors.array() })
 
     const data = matchedData(req)
     // logToConsole("Sample controller create one", data)
@@ -23,6 +21,7 @@ const createOne = async (req, res) => {
 
         res.status(201).json({ success: true, msg: "It works", user})
     } catch (err) {
+        logToConsole("Sample controller createOne", err.message)
         res.status(500).json({success: false, error: err.message})
     }
 }
