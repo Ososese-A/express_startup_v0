@@ -1,9 +1,7 @@
 const nodemailer = require('nodemailer')
-const fs = require("fs")
 const path = require("path")
-const handlebars = require("handlebars")
 const { logToConsole } = require('../../utility/sample.utility')
-const emailTemplate = ""
+const { getEmailTemplate } = require('../../utility/getEmailTemplate.utility')
 
 module.exports = {
     emailService: async (receiver, content) => {
@@ -11,6 +9,9 @@ module.exports = {
         if (!receiver || !content) {
             throw new Error("Receiver and content is missing but they are required")
         }
+
+        const templateDirPath = path.join(__dirname, "templates")
+        const templatePath = path.join(templateDirPath, "sample.template.hbs")
 
         try {
             const transporter = nodemailer.createTransport({
@@ -26,32 +27,17 @@ module.exports = {
                 from: process.env.SMTP_USER,
                 to: receiver,
                 subject: "Thank you for your submission",
-                html: getEmailTemplate({
+                html: getEmailTemplate(templatePath, {
                     receiver,
                     content
                 })
             })
 
-            //for sending another message to an admin or sth like that
-            // await transporter.sendMail({
-            //     from: "",
-            //     to: "",
-            //     subject: "",
-            //     html: ""
-            // })
-
         } catch (err) {
             logToConsole("Sample emailer service", err.message)
             throw new Error(err.message)
         }
-    }
+    },
 }
 
-const getEmailTemplate = (data) => {
-    const templateDirPath = path.join(__dirname, "templates")
-    const templatePath = path.join(templateDirPath, "sampleTemplate.hbs")
-    const templateSource = fs.readFileSync(templatePath, "utf8")
-    const template = handlebars.compile(templateSource)
 
-    return template(data)
-}

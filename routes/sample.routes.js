@@ -13,7 +13,6 @@ const {
     updateOne,
     updateMany,
     deleteOne,
-    deleteMany
 } = require("../controllers/sample.controller")
 
 //create one 

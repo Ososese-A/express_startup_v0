@@ -4,6 +4,8 @@ const logger = require("./middleware/logger.middleware")
 const mongodbConnect = require("./databases/db_nosql/mongodb.connect")
 const sampleRoute = require("./routes/sample.routes")
 const aiFinanceRoute = require("./routes/question.ai.routes")
+const authRoute = require("./routes/auth.route")
+const oauthRoute = require("./routes/oauth.route")
 const cors = require('cors')
 
 const app = express()
@@ -14,6 +16,8 @@ app.use(logger)
 
 app.use("/api/v1/sample", sampleRoute)
 app.use("/api/v1/financeAi", aiFinanceRoute)
+app.use("/api/v1/auth/", authRoute)
+app.use("/api/v1/oauth/", oauthRoute)
 
 app.get("/", (req, res) => {
     res.json({msg: "Hello world"})
