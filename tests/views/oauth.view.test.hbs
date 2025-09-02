@@ -1,0 +1,38 @@
+<h1 id="title"></h1>
+<p id="message"></p>
+<ul id="items"></ul>
+<h1>Hello World</h1>
+
+<script>
+fetch('/api/')
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{{!-- <script>
+  fetch('/api/data')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('title').textContent = data.title;
+      document.getElementById('message').textContent = data.message;
+      const list = document.getElementById('items');
+      data.items.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        list.appendChild(li);
+      });
+    });
+</script> --}}
