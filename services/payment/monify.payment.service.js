@@ -16,7 +16,9 @@ const getMonnifyAuthToken = async () => {
             }
         )
 
-        return response.data.responseBody.accessToken
+        const token = await response.data.responseBody.accessToken
+
+        return token
     } catch (err) {
         logToConsole("monnify payment service get the monnify auth token", err.message)
         throw new Error(err.message);
@@ -25,14 +27,17 @@ const getMonnifyAuthToken = async () => {
 
 module.exports = {
     payWithMonnify: async (email, amount, name, description, redirectUrl, paymentMethod) => {
-        if (!email || !amount) throw new Error("The following data are required to use payWithMonnify; email, amount, name, description, redirectUrl, paymentMethod")
+        if (!email || !amount || !name || !description || !redirectUrl || !paymentMethod) throw new Error("The following data are required to use payWithMonnify; email, amount, name, description, redirectUrl, paymentMethod")
 
-        const paymentMethodList = ["CARD", "ACCOUNT"]
+        const paymentMethodList = ["CARD", "ACCOUNT_TRANSFER"]
 
-        if (!paymentMethodList.includes(paymentMethod)) throw new Error(`Inavid Payment Method Selected; ${paymentMethod}`)
+        const selectedMethod = paymentMethod.toUpperCase()
+
+        if (!paymentMethodList.includes(selectedMethod)) throw new Error(`Inavid Payment Method Selected; ${paymentMethod}`)
 
         try {
             const authToken = await getMonnifyAuthToken()
+
             const response = await axios.post(
                 "https://sandbox.monnify.com/api/v1/merchant/transactions/init-transaction",
                 {
@@ -41,10 +46,10 @@ module.exports = {
                     customerEmail: email,
                     paymentReference: `REF-${Date.now()}`,
                     paymentDescription: description,
-                    currencycode: "NGN",
+                    currencyCode: "NGN",
                     contractCode: process.env.MONNIFY_CODE,
                     redirectUrl: redirectUrl,
-                    paymentMethod: paymentMethod
+                    paymentMethod: selectedMethod
                 },
                 {
                     headers: {
@@ -59,6 +64,8 @@ module.exports = {
                 checkoutUrl,
                 msg: "Payment sandbox Initiated Successfully"
             }
+
+            return res
         } catch (err) {
             logToConsole("monnify payment service pay with monnify", err.message)
             throw new Error(err.message)
@@ -90,8 +97,13 @@ module.exports = {
                 return {msg, status}
             }
         } catch (err) {
-            logToConsole("monnify payment service verify with monnify", err.message)
-            throw new Error(err.message)
+            if (err.response) {
+                logToConsole("monnify payment service verify with monnify", err.response.data)
+                throw new Error(err.response.data.responseMessage)
+            } else {
+                logToConsole("monnify payment service verify with monnify", err.message)
+                throw new Error(err.message)
+            }
         }
     }
 }

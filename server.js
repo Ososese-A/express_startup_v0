@@ -26,6 +26,8 @@ app.use("/api/v1/auth/", authRoute)
 app.use("/api/v1/oauth/", oauthRoute)
 app.use("/api/v1/payment/", paymentRoute)
 
+// http://localhost:8080/api/v1/test/views/oauth
+// http://localhost:8080/api/v1/test/views/pay
 app.use("/api/v1/test/views", viewsRoute)
 
 app.get("/home", (req, res) => {

@@ -32,6 +32,17 @@ const paymentValidationSchema = {
         notEmpty: {
             errorMessage: "Remarks must not be empty"
         },
+    },
+
+    paymentMethod: {
+        notEmpty: {
+            errorMessage: "Payment method must not be empty",
+        },
+
+        isIn: {
+            options: [["card", "coupon", "account_transfer"]],
+            errorMessage: "Invalid payment type selected"
+        }
     }
 }
 

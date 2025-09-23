@@ -1,0 +1,132 @@
+<div>
+    <form id="signup">
+        <input type="text" name="username" id="username" placeholder="Username"> <br>
+        <input type="password" name="password" id="password" placeholder="Password"> <br>
+        <input type="email" name="email" id="email" placeholder="Email"> <br>
+        <input type="submit" value="Submit">
+    </form>
+</div>
+
+<div id="signup-msg" style="color: green;"></div>
+<div id="signup-err" style="color: red;"></div>
+
+<div>
+    <form id="login">
+        <input type="text" name="username" id="username" placeholder="Username"> <br>
+        <input type="password" name="password" id="password" placeholder="Password"> <br>
+        <input type="submit" value="Submit">
+    </form>
+</div>
+
+<div id="login-msg" style="color: green;"></div>
+<div id="login-err" style="color: red;"></div>
+
+<div>
+    <form id="payment">
+        <input type="number" name="amount" id="amount" placeholder="amount"> <br>
+
+        <input type="radio" name="paymentMethod" value="card" id="payment_card"> <label>Card</label> <br>
+        <input type="radio" name="paymentMethod" value="account_transfer" id="payment_account_transfer"> <label>Account Transfer</label> <br>
+        <input type="radio" name="paymentMethod" value="coupon" id="payment_coupon"> <label>Coupon</label> <br>
+
+        <input type="text" name="remarks" id="remarks" placeholder="remarks"> <br>
+
+        <input type="submit" value="Submit">
+    </form>
+</div>
+
+<div id="pay-msg" style="color: green;"></div>
+<div id="pay-err" style="color: red;"></div>
+
+<script>
+    document.getElementById("signup").addEventListener("submit", async (e) => {
+        e.preventDefault()
+
+        const username = document.querySelector("#signup #username").value;
+        const password = document.querySelector("#signup #password").value;
+        const email = document.querySelector("#signup #email").value;
+
+        const response = await fetch("http://localhost:8080/api/v1/auth/signup", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                //get the signup data from th from
+                username,
+                password,
+                email
+            })
+        })
+
+        const data = await response.json()
+        if (data.success) {
+            document.getElementById("signup-msg").innerText = data.msg
+        } else {
+            document.getElementById("signup-err").innerText = data.error
+        }
+    })
+
+    document.getElementById("login").addEventListener("submit", async (e) => {
+        e.preventDefault()
+
+        const formData = new FormData(document.getElementById("login"))
+
+        const username = formData.get("username")
+        const password = formData.get("password")
+
+        const response = await fetch("http://localhost:8080/api/v1/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                //get the signup data from th from
+                username,
+                password
+            })
+        })
+
+        const data = await response.json()
+
+        if (data.success) {
+            localStorage.setItem("jwt", data.token)
+            document.getElementById("login-msg").innerText = `${data.msg} ${data.token} `
+            document.getElementById("login-msg").innerText += ` ${data.token}`
+        } else {
+            document.getElementById("login-err").innerText = data.error
+        }
+    })
+
+    document.getElementById("payment").addEventListener("submit", async (e) => {
+        e.preventDefault()
+
+        const formData = new FormData(document.getElementById("payment"))
+
+        const amount = formData.get("amount")
+        const remarks = formData.get("remarks")
+        const paymentMethod = formData.get("paymentMethod")
+
+        const response = await fetch("http://localhost:8080/api/v1/payment/monnify/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("jwt")}`
+            },
+            body: JSON.stringify({
+                //get the signup data from th from
+                amount,
+                remarks,
+                paymentMethod
+            })
+        })
+
+        const data =  await response.json()
+
+        if (data.success) {
+            window.location.href = data.checkoutUrl
+        } else {
+            document.querySelector("#pay-err").innerText = data.error
+        }
+    })
+</script>
