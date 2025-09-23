@@ -33,6 +33,8 @@ module.exports = {
 
         const selectedMethod = paymentMethod.toUpperCase()
 
+        const  ref = `REF-${Date.now()}`
+
         if (!paymentMethodList.includes(selectedMethod)) throw new Error(`Inavid Payment Method Selected; ${paymentMethod}`)
 
         try {
@@ -44,11 +46,11 @@ module.exports = {
                     amount: amount,
                     customerName: name,
                     customerEmail: email,
-                    paymentReference: `REF-${Date.now()}`,
+                    paymentReference: ref,
                     paymentDescription: description,
                     currencyCode: "NGN",
                     contractCode: process.env.MONNIFY_CODE,
-                    redirectUrl: redirectUrl,
+                    redirectUrl,
                     paymentMethod: selectedMethod
                 },
                 {
@@ -62,6 +64,7 @@ module.exports = {
             const {checkoutUrl} = response.data.responseBody
             const res = {
                 checkoutUrl,
+                ref,
                 msg: "Payment sandbox Initiated Successfully"
             }
 
@@ -76,11 +79,13 @@ module.exports = {
         if (!reference) throw new Error("A reference key of id is needed to verify payments with monnify")
 
         try {
+            const authToken = await getMonnifyAuthToken()
+            
             const response = await axios.get(
-                `https://sandbox.monnify.com/api/v1/transactions/${paymentReference}`,
+                `https://sandbox.monnify.com/api/v1/transactions/${reference}`,
                 {
                     headers: {
-                        Authorization: `Bearer ${process.env.MONNIFY_KEY}`
+                        Authorization: `Bearer ${authToken}`,
                     }
                 }
             )

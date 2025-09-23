@@ -24,4 +24,23 @@ router.get("/pay", (req, res) => {
     })
 })
 
+router.get("/verify-pay/:status/:msg", (req, res) => {
+    const viewPath = path.join(__dirname, "../test/views/verify_pay.view.test.hbs")
+
+    //set variables based on the status
+    const msg = req.params.msg
+    const status = req.params.status
+    const data = {
+        msg,
+        status
+    }
+
+    fs.readFile(viewPath, 'utf8', (err, source) => {
+        if (err) return res.status(500).send('Template error')
+        const template = handlebars.compile(source)
+        const html = template(data)
+        res.send(html)
+    })
+})
+
 module.exports = router

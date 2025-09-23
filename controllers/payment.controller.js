@@ -1,7 +1,7 @@
 const {matchedData, validationResult} = require("express-validator")
 const Auth = require("../databases/db_nosql/models/auth.mongodb.model")
 const Oauth = require("../databases/db_nosql/models/oauth.mongodb.model")
-const {payWithMonnify} = require("../services/payment/monify.payment.service")
+const {payWithMonnify, verifyWithMonnify} = require("../services/payment/monify.payment.service")
 const {logToConsole} = require("../utility/sample.utility")
 
 const monnifyPay = async (req, res) => {
@@ -34,8 +34,9 @@ const monnifyPay = async (req, res) => {
         //NOTE: complete this and upgrade the service to accespt the remarks then the validator as well needs to vet the payment method
         const response = await payWithMonnify(email, amount, user.username, remarks, redirectUri, paymentMethod)
 
-        const { checkoutUrl } = response;
-        res.json({ success: true, checkoutUrl, msg: "Sandbox initialized successfully" });
+        const { checkoutUrl, ref, msg } = response;
+        //save the ref to the transaction db
+        res.json({ success: true, checkoutUrl, msg });
 
         //This will be done in the verify section
         //send message and email if it is successful
@@ -51,7 +52,21 @@ const monnifyPay = async (req, res) => {
 }
 
 const monnifyVerify = async (req, res) => {
-    
+    const {paymentReference} = req.query
+
+    logToConsole("monnify payment verify controller (monnifyVerify)", `This is the reference sent ${paymentReference}`)
+
+    try {
+        const {msg, status} = await verifyWithMonnify(paymentReference.trim())
+
+        //any db related logic needed 
+
+        res.status(200).redirect(`http://localhost:8080/api/v1/test/views/verify-pay/${status}/${msg}`)
+    } catch (err) {
+        const status = "unknown"
+        const msg = err
+        res.status(500).redirect(`http://localhost:8080/api/v1/test/views/verify-pay/${status}/${msg}`)
+    }
 }
 
 const paystackPay = async (req, res) => {
@@ -62,4 +77,4 @@ const paystackPay = async (req, res) => {
     //send message if it fails
 }
 
-module.exports = {monnifyPay, paystackPay}
+module.exports = {monnifyPay, monnifyVerify, paystackPay}
