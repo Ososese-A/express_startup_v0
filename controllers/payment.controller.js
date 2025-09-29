@@ -54,7 +54,7 @@ const monnifyPay = async (req, res) => {
 const monnifyVerify = async (req, res) => {
     const {paymentReference} = req.query
 
-    logToConsole("monnify payment verify controller (monnifyVerify)", `This is the reference sent ${paymentReference}`)
+    logToConsole("monnify payment verify controller (monnifyVerify)", `This is the reference sent ${paymentReference}xx0`)
 
     try {
         const {msg, status} = await verifyWithMonnify(paymentReference.trim())

@@ -1,5 +1,5 @@
 const logToConsole = (title, message) => {
-    console.log("This is log is from", title)
+    console.log("This log is from", title)
     console.log(message)
 }
 

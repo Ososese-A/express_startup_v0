@@ -35,6 +35,8 @@ module.exports = {
 
         const  ref = `REF-${Date.now()}`
 
+        logToConsole("monnify payment service pay with monnify", `This is the reference ${ref}`)
+
         if (!paymentMethodList.includes(selectedMethod)) throw new Error(`Inavid Payment Method Selected; ${paymentMethod}`)
 
         try {
@@ -78,11 +80,14 @@ module.exports = {
     verifyWithMonnify: async (reference) => {
         if (!reference) throw new Error("A reference key of id is needed to verify payments with monnify")
 
+        logToConsole("monnify payment service verify with monnify", `This is the reference ${reference}`)
+
         try {
             const authToken = await getMonnifyAuthToken()
             
             const response = await axios.get(
-                `https://sandbox.monnify.com/api/v1/transactions/${reference}`,
+                // `https://sandbox.monnify.com/api/v1/transactions/${reference}`,
+                `https://sandbox.monnify.com/api/v1/merchant/transactions/query?paymentReference=${reference}`,
                 {
                     headers: {
                         Authorization: `Bearer ${authToken}`,
