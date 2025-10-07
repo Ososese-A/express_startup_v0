@@ -11,14 +11,17 @@ module.exports = {
                 amount: amount * 100
             })
 
-            if (!pay.data || pay.data.authorization_url) throw new Error("Authorization url not returned by Paystack")
+            if (!pay.data || !pay.data.authorization_url) throw new Error("Authorization url not returned by Paystack")
 
             logToConsole("paystack payment service pay with paysatck, This is the payment data", pay.data)
 
             res = {
                 url: pay.data.authorization_url,
-                ref: pay.data.reference
+                ref: pay.data.reference,
+                msg: `Initializing sandbox`
             }
+
+            return res
 
         } catch (err) {
             logToConsole("paystack payment service pay with paysatck", err.message)
@@ -32,14 +35,16 @@ module.exports = {
         try {
             const ref = await PayStack.transaction.verify(reference)
 
-            logToConsole("paystack payment service pay with paysatck, This is the verificatio reference", ref)
+            logToConsole("paystack payment service pay with paysatck, This is the verification reference", ref)
 
-            if (ref.data.status === "success") {
+            const status = ref.data.status
+
+            if (status === "success") {
                 const msg = "Transaction Successful"
-                return msg
+                return {msg, status}
             } else {
                 const msg = "Transaction Failed"
-                return msg
+                return {msg, status}
             }
 
         } catch (err) {

@@ -24,11 +24,13 @@ app.use("/api/v1/sample", sampleRoute)
 app.use("/api/v1/financeAi", aiFinanceRoute)
 app.use("/api/v1/auth/", authRoute)
 app.use("/api/v1/oauth/", oauthRoute)
+// http://localhost:8080/api/v1/payment/paystack/verify?paymentReference=6emguveib8
 app.use("/api/v1/payment/", paymentRoute)
 
 // http://localhost:8080/api/v1/test/views/oauth
 // http://localhost:8080/api/v1/test/views/pay
 // http://localhost:8080/api/v1/test/views/pay REF-1759143347457
+// http://localhost:8080/api/v1/test/views/verify-pay/:status/:msg
 app.use("/api/v1/test/views", viewsRoute)
 
 app.get("/home", (req, res) => {
