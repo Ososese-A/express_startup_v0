@@ -8,6 +8,7 @@ const authRoute = require("./routes/auth.route")
 const oauthRoute = require("./routes/oauth.route")
 const paymentRoute = require("./routes/payment.route")
 const viewsRoute = require("./routes/test.views.routes")
+const imageRoute = require("./routes/test.image.processor.route")
 const cors = require('cors')
 const githubPassport = require('./configs/oauth_strategies/github.strategy.config')
 const oauthMiddleware = require("./middleware/oauth.middleware")
@@ -32,6 +33,8 @@ app.use("/api/v1/payment/", paymentRoute)
 // http://localhost:8080/api/v1/test/views/pay REF-1759143347457
 // http://localhost:8080/api/v1/test/views/verify-pay/:status/:msg
 app.use("/api/v1/test/views", viewsRoute)
+
+app.use("/api/v1/test/image", imageRoute)
 
 app.get("/home", (req, res) => {
     res.json({msg: "Hello world"})
