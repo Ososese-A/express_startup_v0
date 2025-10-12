@@ -9,8 +9,10 @@ const imageSchema = new mongoose.Schema(
             default: 'none'
         },
         img: {
-            data: Buffer,
-            contentType: mongoose.Schema.Types.String
+            data: mongoose.Schema.Types.Buffer,
+            contentType: mongoose.Schema.Types.String,
+            originalSize: mongoose.Schema.Types.Number,
+            compressedSize: mongoose.Schema.Types.Number
         }
     }, 
     {timestamps: true}
