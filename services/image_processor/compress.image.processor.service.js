@@ -10,7 +10,7 @@ module.exports = {
         if (!sharpBuffer) throw new Error("Compress one step needs a sharpBuffer")
 
         try {
-            const scale = 0.1 //remeber this means 100%
+            const scale = 0.1 //remeber 0.1 means 100%
             const metadata = await sharp(sharpBuffer).metadata()
             const newWidth = Math.round(metadata.width * scale)
 
@@ -22,7 +22,7 @@ module.exports = {
                     .toBuffer()
             :
                 await sharp(sharpBuffer)
-                    .resize({ width: newWidth}) //remeber to use a scale to handle resising and do not do it manually
+                    // .resize({ width: newWidth}) //remeber to use a scale to handle resising and do not do it manually
                     .png({ 
                         compressionLevel: 9,
                         adaptiveFiltering: true // remeber to use this only when we nned adaptive filtering
@@ -53,7 +53,7 @@ module.exports = {
                     .toBuffer()
             :
                 await sharp(sharpBuffer)
-                    .resize({ width: newWidth}) //remeber to use a scale to handle resising and do not do it manually
+                    // .resize({ width: newWidth}) //remeber to use a scale to handle resising and do not do it manually
                     .png({ 
                         compressionLevel: 9,
                         adaptiveFiltering: true // remeber to use this only when we nned adaptive filtering
@@ -68,5 +68,11 @@ module.exports = {
             logToConsole("Image processor service compress one step", err.message)
             throw new Error(err.message)
         }
+    },
+
+    compressWithZip: (buffer) => {
+        const finalCompression = zlib.deflateSync(buffer)
+
+        return finalCompression
     }
 }

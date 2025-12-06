@@ -7,7 +7,14 @@ module.exports = {
     decompressOneStep: async (imgBuffer) => {
     },
 
-    decompressTwoStep: async (imgBuffer) => {
+    // decompressTwoStep: async (imgBuffer) => {
+    decompressTwoStep: (imgBuffer) => {
+        const decompressed = zlib.inflateSync(imgBuffer)
+
+        return decompressed
+    },
+
+    decompressWithZip: (imgBuffer) => {
         const decompressed = zlib.inflateSync(imgBuffer)
 
         return decompressed

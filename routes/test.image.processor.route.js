@@ -4,9 +4,9 @@ const sharp = require("sharp")
 const imageMiddleware = require("../middleware/image.middleware")
 const dynamicImageProcessorMiddleware = require("../middleware/image.dynamic.middleware")
 const { logToConsole } = require("../utility/sample.utility")
-const { compressOneStep, compressTwoStep } = require("../services/image_processor/compress.image.processor.service")
+const { compressOneStep, compressTwoStep, compressWithZip } = require("../services/image_processor/compress.image.processor.service")
 const Image = require("../databases/db_nosql/models/image.mongodb.model")
-const { decompressTwoStep } = require("../services/image_processor/decompress.image.processor.service")
+const { decompressTwoStep, decompressWithZip } = require("../services/image_processor/decompress.image.processor.service")
 
 // remeber when testin on the front end the name of the field with the image should be the same as the argument of the single we used for the upload middleware
 // And for postman it is the key we change
@@ -46,13 +46,47 @@ router.post("/upload", imageMiddleware, dynamicImageProcessorMiddleware, async (
             }
         })
 
-        await newImage.save()
+        const img = await newImage.save()
 
         console.log('Original Size', originalSize)
         console.log('Compressed Size', compressedSize)
 
         // send a response
-        res.status(200).json({ success: true, msg: `Image stored successfully` })
+        res.status(200).json({ success: true, msg: `Image stored successfully`, id: img.id })
+
+    } catch (err) {
+        logToConsole("SImage processor route /upload", err.message)
+        res.status(500).json({success: false, error: err.message})
+    }
+})
+
+router.post("/upload-zip", imageMiddleware, dynamicImageProcessorMiddleware, async (req, res) => {
+    try {
+        const originalSize = req.file.buffer.length
+
+        // call the service and store the returned value
+        const buffer = compressWithZip(req.file.buffer)
+        const compressedSize = buffer.length
+
+        // add it to the db
+        const newImage = new Image({
+            name: req.file.originalname,
+            compression: 'zip',
+            img: {
+                data: buffer,
+                contentType: req.file.mimetype,
+                originalSize: originalSize,
+                compressedSize: compressedSize
+            }
+        })
+
+        const img = await newImage.save()
+
+        console.log('Original Size', originalSize)
+        console.log('Compressed Size', compressedSize)
+
+        // send a response
+        res.status(200).json({ success: true, msg: `Image stored successfully`, id: img.id })
 
     } catch (err) {
         logToConsole("SImage processor route /upload", err.message)
@@ -80,13 +114,13 @@ router.post("/upload-two", imageMiddleware, dynamicImageProcessorMiddleware, asy
             }
         })
 
-        await newImage.save()
+        const img = await newImage.save()
 
         console.log('Original Size', originalSize)
         console.log('Compressed Size', compressedSize)
 
         // send a response
-        res.status(200).json({ success: true, msg: `Image stored successfully` })
+        res.status(200).json({ success: true, msg: `Image stored successfully`, id: img.id})
 
     } catch (err) {
         logToConsole("SImage processor route /upload", err.message)
@@ -110,11 +144,15 @@ router.get("/view/:id", async (req, res) => {
         logToConsole("Image processor route /view compressionType", compressionType)
         if (compressionType == "two") {
             decompressed = decompressTwoStep(imgBuffer)
+        } else if (compressionType == "zip") {
+            decompressed = decompressWithZip(imgBuffer)
+        } else {
+            decompressed = imgBuffer
         }
 
         // send a response
         res.set('Content-Type', contentType)
-        res.send(imgBuffer)
+        res.send(decompressed)
     } catch (err) {
         logToConsole("Image processor route /view", err.message)
         res.status(500).json({success: false, error: err.message})

@@ -5,7 +5,7 @@ const imageSchema = new mongoose.Schema(
         name: mongoose.Schema.Types.String,
         compression: {
             type: mongoose.Schema.Types.String,
-            enum: ['none', 'one', 'two'],
+            enum: ['none', 'one', 'two', 'zip'],
             default: 'none'
         },
         img: {
